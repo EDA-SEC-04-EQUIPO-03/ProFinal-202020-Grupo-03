@@ -45,13 +45,12 @@ de creacion y consulta sobre las estructuras de datos.
 def Estructura():
     try:
         analyzer = {
-                    'trips': None
-                    
+                    'company': None,
                     }
 
-        analyzer['trips'] = m.newMap(numelements=14000,
+        analyzer['company'] = m.newMap(numelements=14000,
                                      maptype='CHAINING',
-                                     comparefunction=compareStations)
+                                     comparefunction=comparecompanie)
         
         
         return analyzer
@@ -61,13 +60,31 @@ def Estructura():
 
 # Funciones para agregar informacion al grafo
 
-def AddRutaBy():
+def AddRutaByCompany(estrupa, name, fileline):
+    structure=strupa["company"]
+    chequearcompa=m.contains(structure, name)
+    if chequearcompa:
+        entrada=m.get(structure, name)
+        stropa=me.getValue(entrada)
+    else:
+        stropa=newRutaCompany(name)
+        m.put(structure, fecha, stropa)
+    lt.addLast(stropa["listacompas"], fileline)
+
+def newRutaCompany(compa):
+    dik = {"name":"","listacompas":None,"size":None}
+    dik["name"]=compa
+    dik["listacompas"]= lt.newList('SINGLE_LINKED', comparecompanie)
+
+
 
 # ==============================
 # Funciones de consulta
 # ==============================
 
-def getRutaCircular():
+def getCompaTopTaxi(strupa):
+    structure=strupa["company"]
+    for 
 
 # ==============================
 # Funciones Helper
@@ -77,5 +94,11 @@ def getRutaCircular():
 # Funciones de Comparacion
 # ==============================
 
-def compareids():
-    
+def comparecompanie(company, entrada):
+    companyentry = me.getKey(entrada)
+    if (company == companyentry):
+        return 0
+    elif (company > companyentry):
+        return 1
+    else:
+        return 0

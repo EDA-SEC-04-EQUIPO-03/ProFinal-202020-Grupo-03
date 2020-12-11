@@ -56,9 +56,12 @@ def loadInfo(structure, infofile):
     input_file = csv.DictReader(open(infofile, encoding="utf-8"),
                                 delimiter=",")
     for line in input_file:
-        model.addAccident(structure, line)
+        companie=line["company"]
+        model.AddRutaByCompany(structure, companie, line)
     return structure
 
 # ___________________________________________________
 #  Funciones para consultas
 # ___________________________________________________
+
+def get():

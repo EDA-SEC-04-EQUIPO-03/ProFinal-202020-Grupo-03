@@ -42,7 +42,11 @@ operación seleccionada.
 # ___________________________________________________
 #  Variables
 # ___________________________________________________
-
+filesmall = 'taxi-trips-wrvz-psew-subset-small.csv'
+filamedium = 'taxi-trips-wrvz-psew-subset-medium.csv'
+filelarge = 'taxi-trips-wrvz-psew-subset-large.csv'
+Structure = None
+recursionLimit = 20000
 
 # ___________________________________________________
 #  Menu principal
@@ -51,3 +55,21 @@ operación seleccionada.
 """
 Menu principal
 """
+
+def printmenu():
+    print("\n")
+    print("*******************************************")
+    print("Bienvenido")
+    print("1- Inicializar Analizador")
+    print("2- Cargar información ")
+    print("3- Requerimiento #1 ")
+    print("4- Requerimiento #2 ")
+    print("5- Requerimiento #3 ")
+
+def cargar_info():
+    #proporcionar opciones de carga de archivo
+    print("¿Preparado para la carga de datos?")
+     print("->  Si desea cargar el archivo pequeño marque 1 ")
+    print("->  Si desea cargar el archivo mediano marque 2 ")
+    print("->  Si desea cargar el archivo grande marque 3 ")
+    rta=input("Digite su opción: ")

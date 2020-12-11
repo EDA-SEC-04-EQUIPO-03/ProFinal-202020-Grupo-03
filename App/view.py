@@ -69,7 +69,7 @@ def printmenu():
 def cargar_info():
     #proporcionar opciones de carga de archivo
     print("¿Preparado para la carga de datos?")
-     print("->  Si desea cargar el archivo pequeño marque 1 ")
+    print("->  Si desea cargar el archivo pequeño marque 1 ")
     print("->  Si desea cargar el archivo mediano marque 2 ")
     print("->  Si desea cargar el archivo grande marque 3 ")
     rta=input("Digite su opción: ")

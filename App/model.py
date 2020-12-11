@@ -68,7 +68,7 @@ def AddRutaByCompany(estrupa, name, fileline):
         stropa=me.getValue(entrada)
     else:
         stropa=newRutaCompany(name)
-        m.put(structure, fecha, stropa)
+        m.put(structure, name, stropa)
     lt.addLast(stropa["listacompas"], fileline)
 
 def newRutaCompany(compa):
@@ -83,8 +83,27 @@ def newRutaCompany(compa):
 # ==============================
 
 def getCompaTopTaxi(strupa):
+    Mayores={"Top1":None,"Top2":None,"Top3":None} #company name
+    mayores={"Top1":0,"Top2":0,"Top3":0} #num taxis
     structure=strupa["company"]
-    for 
+    for cada_compa in structure:
+        dicc=structure[cada_compa]
+        rta=analizarTop(Mayores,dicc)
+    return rta
+
+def analizarTop(Top,top,dicc): #names,nums,dicc
+    compania=dicc["name"]
+    num_taxis=lt.size(dicc["listacompas"])
+    if num_taxis>top["Top1"] and (compania != Top["Top1"]) and num_taxis>top["Top2"] and num_taxis>top["Top3"]:
+        top["Top1"]=num_taxis
+        Top["Top1"]=compania
+    elif num_taxis>top["Top2"] and (compania != Top["Top2"]) and num_taxis>top["Top3"] and num_taxis<top["Top1"]: #and Top["Top2"]!=Top["Top1"]
+        top["Top2"]=num_taxis
+        Top["Top2"]=compania
+    elif num_taxis>top["Top3"] and (compania != Top["Top3"]) and num_taxis<top["Top1"] and num_taxis<top["Top2"]: #and Top["Top2"]!=Top["Top1"]
+        top["Top3"]=num_taxis
+        Top["Top3"]=compania
+    return (Top,top)
 
 # ==============================
 # Funciones Helper

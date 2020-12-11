@@ -67,9 +67,48 @@ def printmenu():
     print("5- Requerimiento #3 ")
 
 def cargar_info():
-    #proporcionar opciones de carga de archivo
     print("¿Preparado para la carga de datos?")
     print("->  Si desea cargar el archivo pequeño marque 1 ")
     print("->  Si desea cargar el archivo mediano marque 2 ")
     print("->  Si desea cargar el archivo grande marque 3 ")
     rta=input("Digite su opción: ")
+    if rta ==1:
+        controller.loadInfo(cont,filesmall)
+    elif rta ==2:
+        controller.loadInfo(cont,filamedium)
+    elif rta ==3:
+        controller.loadInfo(cont,filelarge)
+    else:
+        print("Opción erronea, no se ha cargado la información")
+
+def Req1():
+    print("hola 1")
+
+def Req2():
+    print("hola 2")
+
+def Req3():
+    print("hola 3")
+
+while True:
+    printMenu()
+    inputs = input('Seleccione una opción para continuar\n>')
+
+    if int(inputs[0]) == 1:
+        print("\nInicializando....")
+        cont = controller.iniciar_catalogo()
+    elif int(inputs[0]) == 2:
+        executiontime = timeit.timeit(cargar_info, number=1)
+        print("Tiempo de ejecución: " + str(executiontime))
+    elif int(inputs[0]) == 3:
+        executiontime = timeit.timeit(Req1, number=1)
+        print("Tiempo de ejecución: " + str(executiontime))
+    elif int(inputs[0]) == 4:
+        executiontime = timeit.timeit(Req2, number=1)
+        print("Tiempo de ejecución: " + str(executiontime))
+    elif int(inputs[0]) == 5:
+        executiontime = timeit.timeit(Req3, number=1)
+        print("Tiempo de ejecución: " + str(executiontime))
+    else:
+        sys.exit(0)
+sys.exit(0)

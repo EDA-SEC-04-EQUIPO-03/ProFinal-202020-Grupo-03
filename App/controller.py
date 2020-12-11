@@ -40,11 +40,24 @@ recae sobre el controlador.
 #  Inicializacion del catalogo
 # ___________________________________________________
 
-
+def iniciar_catalogo(structure):
+    catalogo=model.Estructura()
+    return catalogo
 # ___________________________________________________
 #  Funciones para la carga de datos y almacenamiento
 #  de datos en los modelos
 # ___________________________________________________
+
+def loadInfo(structure, infofile):
+    """
+    Carga los datos de los archivos CSV en el modelo
+    """
+    infofile = cf.data_dir + accidentsfile
+    input_file = csv.DictReader(open(infofile, encoding="utf-8"),
+                                delimiter=",")
+    for line in input_file:
+        model.addAccident(structure, line)
+    return structure
 
 # ___________________________________________________
 #  Funciones para consultas

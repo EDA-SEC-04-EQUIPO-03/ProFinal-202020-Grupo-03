@@ -42,11 +42,32 @@ de creacion y consulta sobre las estructuras de datos.
 #                       API
 # -----------------------------------------------------
 
+def Estructura():
+    try:
+        analyzer = {
+                    'trips': None
+                    
+                    }
+
+        analyzer['trips'] = m.newMap(numelements=14000,
+                                     maptype='CHAINING',
+                                     comparefunction=compareStations)
+        
+        
+        return analyzer
+ except Exception as exp:
+        error.reraise(exp, 'model:Analizador')
+
+
 # Funciones para agregar informacion al grafo
+
+def AddRutaBy():
 
 # ==============================
 # Funciones de consulta
 # ==============================
+
+def getRutaCircular():
 
 # ==============================
 # Funciones Helper
@@ -55,3 +76,6 @@ de creacion y consulta sobre las estructuras de datos.
 # ==============================
 # Funciones de Comparacion
 # ==============================
+
+def compareids():
+    

@@ -58,6 +58,7 @@ def loadInfo(structure, infofile):
     for line in input_file:
         companie=line["company"]
         model.AddRutaByCompany(structure, companie, line)
+        model.AddViaje(structure,line)
     return structure
 
 # ___________________________________________________

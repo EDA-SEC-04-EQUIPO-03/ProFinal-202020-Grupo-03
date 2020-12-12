@@ -46,11 +46,16 @@ def Estructura():
     try:
         analyzer = {
                     'company': None,
+                    'areacomu': None
                     }
 
         analyzer['company'] = m.newMap(numelements=14000,
                                      maptype='CHAINING',
                                      comparefunction=comparecompanie)
+        analyzer['uniones'] = gr.newGraph(datastructure='ADJ_LIST',
+                                        directed=True,
+                                        size=1000,
+                                        comparefunction=comapreAreas)
         
         
         return analyzer
@@ -76,38 +81,133 @@ def newRutaCompany(compa):
     dik["name"]=compa
     dik["listacompas"]= lt.newList('SINGLE_LINKED', comparecompanie)
 
+def agregartopstaxi(dicc):
+    listanums=[]#num taxis compañias
+    listaids=[]#lista id taxis
+    listaarreglo=lt.newList('ARRAY_LIST',None)  #lista nombre compañias
+    iterator=it.newIterator(dicc["listacompas"])
+    while it.hasNext(iterator):
+        cada_single=it.next(iterator) #info archivo CSV
+            
+        if (cada_single["taxi_id"] not in listaids) and (not lt.isPresent(dicc["name"])):
+            listanums.append(1)
+            listaids.append(cada_single["taxi_id"])
+            lt.addLast(listaarreglo,dicc["name"])
+        elif (cada_single["taxi_id"] not in listaids) and  lt.isPresent(dicc["name"]):
+            pos=hallarposicionarray(listaarreglo,dicc["name"])
+            listanums[pos]=listanums[pos]+1
+            listaids.append(cada_single["taxi_id"])
+    return (listanums, listaarreglo)
 
+def agregartopsservice(dicc):
+    listanums=[] #num servicios compañias
+    listaarreglo=lt.newList('ARRAY_LIST',None) #lista nombre compañias
+    lt.addLast(listaarreglo,dicc["name"]) 
+    listanums.append(lt.size(dicc["listacompas"]))
+    return (listanums, listaarreglo)
+
+def AddViaje(analyzer,trip):
+    #Cada estación se agrega como un vértice al grafo, si es que aún no existe.
+    origin = trip['pickup_community_area']
+    destination = trip['dropoff_community_area']
+    duration = float(trip['trip_seconds'])
+    addStation(analyzer, origin)
+    addStation(analyzer, destination)
+    addConnection(analyzer, origin, destination, duration)
+
+def addStation(analyzer, stationid):
+    """
+    Adiciona una estación como un vertice del grafo
+    """
+    if not gr.containsVertex(analyzer ["uniones"], stationid):
+            gr.insertVertex(analyzer ["uniones"], stationid)
+    return analyzer
+
+def addConnection(analyzer, origin, destination, duration):
+    """
+    Adiciona un arco entre dos estaciones
+    """
+    promedio=None
+    edge = gr.getEdge(analyzer ["uniones"], origin, destination)
+    if edge is None:
+        gr.addEdge(analyzer["uniones"], origin, destination, duration)
+    elif edge is not None and promedio is None:
+        numero_viajes=1
+        promedio=int(edge["weight"])
+        promedio =(promedio*numero_viajes + duration)/(numero_viajes + 1)
+        numero_viajes += 1
+        edge["weight"]=promedio
+    else:
+        promedio=int(edge["weight"])
+        promedio =(promedio*numero_viajes + duration)/(numero_viajes + 1)
+        numero_viajes += 1
+        edge["weight"]=promedio
+    return analyzer
 
 # ==============================
 # Funciones de consulta
 # ==============================
 
-def getCompaTopTaxi(strupa):
-    Mayores={"Top1":None,"Top2":None,"Top3":None} #company name
-    mayores={"Top1":0,"Top2":0,"Top3":0} #num taxis
+def getCompaTopService(strupa,numero):
     structure=strupa["company"]
     for cada_compa in structure:
         dicc=structure[cada_compa]
-        rta=analizarTop(Mayores,dicc)
-    return rta
+        tuplilla=agregartopsservice(dicc)
+        analizartops(tuplilla, numero)
 
-def analizarTop(Top,top,dicc): #names,nums,dicc
-    compania=dicc["name"]
-    num_taxis=lt.size(dicc["listacompas"])
-    if num_taxis>top["Top1"] and (compania != Top["Top1"]) and num_taxis>top["Top2"] and num_taxis>top["Top3"]:
-        top["Top1"]=num_taxis
-        Top["Top1"]=compania
-    elif num_taxis>top["Top2"] and (compania != Top["Top2"]) and num_taxis>top["Top3"] and num_taxis<top["Top1"]: #and Top["Top2"]!=Top["Top1"]
-        top["Top2"]=num_taxis
-        Top["Top2"]=compania
-    elif num_taxis>top["Top3"] and (compania != Top["Top3"]) and num_taxis<top["Top1"] and num_taxis<top["Top2"]: #and Top["Top2"]!=Top["Top1"]
-        top["Top3"]=num_taxis
-        Top["Top3"]=compania
-    return (Top,top)
+def getCompaTopTaxi(strupa,numero):
+    strukk=strupa["compañy"]
+    for cada_compi in strukk:
+        dicc=strukk[cada_compi]
+        
+
+def analizartops(tuplilla,numero):
+    i=0
+    while i<numero:
+        maxvalue=max(tuplilla(0))
+        posicion=tuplilla(0).index(maxvalue)
+
+        valor=tuplilla(0).pop(posicion)
+        nombrecompa=lt.getElement(tuplilla(1),posicion+1)
+        lt.deleteElement(tuplilla(1),posicion+1)
+        print("******************************")
+        print(nombrecompa)
+        print(str(valor))
+        i+=1
+    
+def hallarmejorhorario(strupa,areaInicio,areaFinal,horaInicio,Horafinal):
+    
+    tiempototal=djk.distTo(algoritmo djrisk, areaFinal)
+    rut=ruta(strupa,areaInicio,areaFinal)
+    return (hora, rut, tiempototal)
+
+def ruta(strupa,areaInicio, areaFinal):
+    ruta = []
+    dijsktra = djk.Dijkstra(citibike['graph'],str(areaInicio))
+    if djk.hasPathTo(dijsktra, areaFinal):
+        ruta.append(areaInicio)
+        ruta_lt = djk.pathTo(dijsktra, areaFinal)
+        iterador = it.newIterator(ruta_lt)
+        while it.hasNext(iterador):
+            element = it.next(iterador)
+            ruta.append(element['vertexB'])
+    else:
+        ruta = 'No hay ruta'
+    return ruta
+
 
 # ==============================
 # Funciones Helper
 # ==============================
+
+def hallarposicionarray(arreglar, name):
+    i=0
+    pos=-1
+    while i<lt.size(arreglar):
+        if lt.getElement(arreglar,i) in name:
+            pos=i
+        i+=1
+    return pos
 
 # ==============================
 # Funciones de Comparacion
@@ -121,3 +221,12 @@ def comparecompanie(company, entrada):
         return 1
     else:
         return 0
+
+def compareAreas(stop, keyvaluestop):
+    stopcode = str(keyvaluestop['key'])
+    if (stop == stopcode):
+        return 0
+    elif (stop > stopcode):
+        return 1
+    else:
+        return -1

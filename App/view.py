@@ -29,6 +29,7 @@ import sys
 import config
 from App import controller
 from DISClib.ADT import stack
+from DISClib.ADT import list as lt
 import timeit
 assert config
 
@@ -84,8 +85,27 @@ def cargar_info():
 def Req1():
     M=input("Ingrese el # de compañias top que quiere conocer con más taxis: ")
     N=input("Ingrese el # de compañias top que quiere conocer con más servicios: ")
-    controller.getcompataxi(cont,M)
-    controller.getcompaservice(cont,N)
+    print("El numero total de compañias con al menos un taxi es: "+str(controller.getcompascontaxi(cont)))
+    print("El numero total de taxis en los servicios reportados es: "+str(controller.totaltaxis(cont)))
+    t1=controller.getcompataxi(cont)
+    t2=controller.getcompaservice(cont)
+    print(" Top compañias con + taxis")
+    analizartops(t1,int(M))
+    print("_______________________________")
+    print(" Top compañias con + servicios")
+    analizartops(t2,int(N))
+
+def analizartops(tuplilla, numero):
+    i=0
+    while i<numero:
+        maxvalue=max(tuplilla[0])
+        posicion=tuplilla[0].index(maxvalue)
+        valor=tuplilla[0].pop(posicion)
+        nombrecompa=lt.getElement(tuplilla[1],posicion+1)
+        lt.deleteElement(tuplilla[1],posicion+1)
+        print(nombrecompa)
+        print(str(valor))
+        i+=1
 
 def Req2():
     print("hola 2")
@@ -96,8 +116,11 @@ def Req3():
     timei=input("Ingrese la hora mínima a la que puede tomar el viaje: ")
     timef=input("Ingrese la hora máxima a la que puede tomar el viaje: ")
     ruta=controller.mejorhorario(cont,areasalida,areafinal,timei,timef)
-    for cadaruta in ruta:
-        print(str(cadaruta))
+    print("El tiempo de su recorrido es de: "+str(ruta[1]))
+    print("La ruta a tomar es: ")
+    for cadapaso in ruta[0]:
+        print(str(cadapaso))
+
 
 while True:
     printmenu()

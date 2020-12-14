@@ -57,10 +57,13 @@ def loadInfo(structure, infofile):
                                 delimiter=",")
     for line in input_file:
         companie=line["company"]
+        ids=line["taxi_id"]
         if companie is None:
             line["company"]="LonelyWorker S.A"
             companie="LonelyWorker S.A"
         model.AddRutaByCompany(structure, companie, line)
+        if ids is not None:
+            model.AddrutaById(structure,ids,line)
         model.AddViaje(structure,line)
     return structure
 
@@ -68,20 +71,30 @@ def loadInfo(structure, infofile):
 #  Funciones para consultas
 # ___________________________________________________
 
-def getcompataxi(strupa, num):
-    model.getCompaTopTaxi(strupa, num)
+def getcompataxi(strupa):
+    
+    return model.getCompaTopTaxi(strupa)
 
-def getcompaservice(strupa, num):
-    model.getCompaTopService(strupa, num)
+def getcompaservice(strupa):
+    return model.getCompaTopService(strupa)
 
 
 def mejorhorario(strupa,areaInicio,areaFinal,horaInicio,Horafinal):
-    listavertex=model.hallarposilesvertex(strupa,tupick,horaInicio,Horafinal)
+    #listavertex=model.hallarposilesvertex(strupa,horaInicio,Horafinal)
+    evaluarrutaslimite=model.evaluarrutaslimite(strupa,areaInicio,horaInicio,Horafinal)
     timepasado=999999999999999
-    ruta=["e","r","r","o","r"]
-    for cadavertex in listavertex:
-        grut=model.ruta(strupa,cadavertex,areaFinal)
-        if grut[1]<timepasado:
-            timepasado=grut[1]
-            ruta=grut[0]
-    return ruta
+    print("Evaluando "+str(len(evaluarrutaslimite))+" opciones")
+    ruta=["No","existe","ruta","para","ningún","nodo"]
+    for cadavertex in evaluarrutaslimite:
+        grut=model.ruta(strupa,str(cadavertex),areaFinal)
+        if grut[0]!=["No", "hay", "ruta"]:
+            if grut[1]<timepasado:
+                timepasado=grut[1]
+                ruta=grut[0]
+    return (ruta,timepasado)
+
+def getcompascontaxi(strupa):
+    return model.getnumcompas(strupa)
+
+def totaltaxis(strupa):
+    return model.totaltaxis(strupa)

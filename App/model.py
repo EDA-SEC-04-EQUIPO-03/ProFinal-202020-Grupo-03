@@ -32,7 +32,7 @@ from DISClib.Algorithms.Graphs import scc
 from DISClib.Algorithms.Graphs import dijsktra as djk
 from DISClib.Utils import error as error
 from DISClib.DataStructures import mapentry as me
-from datetime import datetime 
+import datetime 
 assert config
 
 """
@@ -47,7 +47,8 @@ de creacion y consulta sobre las estructuras de datos.
 def Estructura():
     analyzer = {
                 'company': None,
-                'areacomu': None
+                'uniones': None,
+                'ids':None
                 }
 
     analyzer['company'] = m.newMap(numelements=14000,
@@ -57,11 +58,33 @@ def Estructura():
                                     directed=True,
                                     size=1000,
                                     comparefunction=compareAreas)
+    analyzer['ids'] = m.newMap(numelements=14000,
+                                 maptype='CHAINING',
+                                 comparefunction=compareIds)
+
         
     return analyzer
 
 
 # Funciones para agregar informacion al grafo
+
+def AddrutaById(strupa, ID, file):
+    structure=strupa["ids"]
+    existeid= m.contains(structure, ID)
+    if existeid:
+        entrada=m.get(structure, ID) 
+        struc=me.getValue(entrada)  
+    else:
+        struc=newID(ID) 
+        m.put(structure, ID, struc) 
+    lt.addLast(struc["listaids"], file)
+
+def newID(ID):
+    IDD = {"ID":"","listaids":None,"size":None}
+    IDD["ID"]=ID
+    IDD["listaids"]= lt.newList('SINGLE_LINKED', compareIds)
+    return IDD
+
 
 def AddRutaByCompany(estrupa, name, fileline):
     structure=estrupa["company"]
@@ -78,43 +101,24 @@ def newRutaCompany(compa):
     dik = {"name":"","listacompas":None,"size":None}
     dik["name"]=compa
     dik["listacompas"]= lt.newList('SINGLE_LINKED', comparecompanie)
-
-def agregartopstaxi(dicc):
-    listanums=[]#num taxis compañias
-    listaids=[]#lista id taxis
-    listaarreglo=lt.newList('ARRAY_LIST',None)  #lista nombre compañias
-    iterator=it.newIterator(dicc["listacompas"])
-    while it.hasNext(iterator):
-        cada_single=it.next(iterator) #info archivo CSV
-            
-        if (cada_single["taxi_id"] not in listaids) and (not lt.isPresent(dicc["name"])):
-            listanums.append(1)
-            listaids.append(cada_single["taxi_id"])
-            lt.addLast(listaarreglo,dicc["name"])
-        elif (cada_single["taxi_id"] not in listaids) and  lt.isPresent(dicc["name"]):
-            pos=hallarposicionarray(listaarreglo,dicc["name"])
-            listanums[pos]=listanums[pos]+1
-            listaids.append(cada_single["taxi_id"])
-    return (listanums, listaarreglo)
-
-def agregartopsservice(dicc):
-    listanums=[] #num servicios compañias
-    listaarreglo=lt.newList('ARRAY_LIST',None) #lista nombre compañias
-    lt.addLast(listaarreglo,dicc["name"]) 
-    listanums.append(lt.size(dicc["listacompas"]))
-    return (listanums, listaarreglo)
+    return dik
 
 def AddViaje(analyzer,trip):
     #Cada estación se agrega como un vértice al grafo, si es que aún no existe.
-    horai=trip["trip_start_timestamp"].hour() 
-    horaf=trip["trip_end_timestamp"].hour() 
-    minui=trip["trip_start_timestamp"].minute() 
-    minuf=trip["trip_end_timestamp"].minute() 
-    fechai=horai+minui #h:mm
-    fechaf=horaf+minuf #h:mm
-    origin = trip['pickup_community_area']+"-"+fechai
-    destination = trip['dropoff_community_area']+"-"+fechaf
-    duration = float(trip['trip_seconds'])
+    
+    a=trip["trip_start_timestamp"].split("T")
+    fechai=datetime.time.fromisoformat(a[1])
+    #b=trip["trip_end_timestamp"].split("T")
+    #fechaf=datetime.time.fromisoformat(b[1])
+    
+    fechaistr=datetime.time.strftime(fechai,'%H:%M:%S')
+    #fechafstr=datetime.time.strftime(fechaf,'%H:%M:%S')
+    origin = trip['pickup_community_area']+"-"+fechaistr
+    destination = trip['dropoff_community_area']
+    if trip['trip_seconds']!="" and trip['trip_seconds']!=" " and trip['trip_seconds']!=None:
+        duration = int(float(trip['trip_seconds']))
+    else:
+        duration=0.0
     addStation(analyzer, origin)
     addStation(analyzer, destination)
     addConnection(analyzer, origin, destination, duration)
@@ -152,33 +156,64 @@ def addConnection(analyzer, origin, destination, duration):
 # Funciones de consulta
 # ==============================
 
-def getCompaTopService(strupa,numero):
+def getCompaTopService(strupa):
     structure=strupa["company"]
-    for cada_compa in structure:
-        dicc=structure[cada_compa]
-        tuplilla=agregartopsservice(dicc)
-        analizartops(tuplilla, numero)
+    listanums=[] #num servicios compañias
+    listaarreglo=lt.newList('ARRAY_LIST',Comparecompanie) #lista nombre compañias
+    listallaves=m.keySet(structure)
+    iterator=it.newIterator(listallaves)
+    while it.hasNext(iterator):
+        cada_llave=it.next(iterator)
+        entrada=m.get(structure,cada_llave)
+        dicc=me.getValue(entrada)
+        #tuplilla=agregartopsservice(dicc)
+        #analizartops(tuplilla, int(numero))
+        lt.addLast(listaarreglo,dicc["name"]) 
+        listanums.append(lt.size(dicc["listacompas"]))
+    return (listanums,listaarreglo)
 
-def getCompaTopTaxi(strupa,numero):
-    strukk=strupa["compañy"]
-    for cada_compi in strukk:
-        dicc=strukk[cada_compi]
-        tuplin=agregartopstaxi(dicc)
-        analizartops(tuplin, numero)
-
-def analizartops(tuplilla,numero):
+def getnumcompas(strupa):
     i=0
-    while i<numero:
-        maxvalue=max(tuplilla(0))
-        posicion=tuplilla(0).index(maxvalue)
+    mapa=strupa["company"]
+    listakeys=m.keySet(mapa)
+    iterator=it.newIterator(listakeys)
+    while it.hasNext(iterator):
+        cada_llave=it.next(iterator)
+        entrada=m.get(mapa,cada_llave)
+        dicc=me.getValue(entrada)
+        if lt.size(dicc["listacompas"])!=0:
+            i+=1
+    return i
 
-        valor=tuplilla(0).pop(posicion)
-        nombrecompa=lt.getElement(tuplilla(1),posicion+1)
-        lt.deleteElement(tuplilla(1),posicion+1)
-        print("******************************")
-        print(nombrecompa)
-        print(str(valor))
-        i+=1
+
+def getCompaTopTaxi(strupa):
+    strukk=strupa["company"]
+    listallaves=m.keySet(strukk)
+    iterator=it.newIterator(listallaves)
+    listanums=[]#num taxis compañias
+    listaids=[]#lista id taxis
+    listaarreglo=lt.newList('ARRAY_LIST',Comparecompanie)  #lista nombre compañias
+    while it.hasNext(iterator):
+        cada_llave=it.next(iterator)
+        entrada=m.get(strukk,cada_llave)
+        dicc=me.getValue(entrada)
+        hola(dicc,listaarreglo,listanums,listaids)
+        #tuplin=agregartopstaxi(dicc)
+    return (listanums,listaarreglo)
+
+def hola(dicc,listaarreglo,listanums,listaids):
+    iterator=it.newIterator(dicc["listacompas"])
+    while it.hasNext(iterator):
+        cada_single=it.next(iterator) #info archivo CSV
+        present= not lt.isPresent(listaarreglo,dicc["name"])
+        if (cada_single["taxi_id"] not in listaids) and present: 
+            listanums.append(1)
+            listaids.append(cada_single["taxi_id"])
+            lt.addLast(listaarreglo,dicc["name"])
+        elif (cada_single["taxi_id"] not in listaids) and  present:
+            pos=hallarposicionarray(listaarreglo,dicc["name"])
+            listanums[pos]=listanums[pos]+1
+            listaids.append(cada_single["taxi_id"])
 
 
 def hallarposilesvertex(strupa,Hi,Hf):
@@ -196,9 +231,22 @@ def hallarposilesvertex(strupa,Hi,Hf):
                 sacarruta.append(posiblevertex)
     return sacarruta
 
+def evaluarrutaslimite(strupa,Ai,H1,Hf):
+    listar=[]
+    estructura=gr.vertices(strupa["uniones"])
+    iterator=it.newIterator(estructura)
+    while it.hasNext(iterator):
+        vertex=it.next(iterator) #cada vertex
+        if H1 in vertex and Ai in vertex:
+            listar.append(vertex)
+        if Hf in vertex and Ai in vertex:
+            listar.append(vertex)
+    return listar
+            
+
 def ruta(strupa,areaInicio, areaFinal):
     ruta = []
-    dijsktra = djk.Dijkstra(strupa['graph'],areaInicio)
+    dijsktra = djk.Dijkstra(strupa['uniones'],areaInicio)
     if djk.hasPathTo(dijsktra, areaFinal):
         ruta.append(areaInicio)
         ruta_lt = djk.pathTo(dijsktra, areaFinal)
@@ -207,9 +255,12 @@ def ruta(strupa,areaInicio, areaFinal):
             element = it.next(iterador)
             ruta.append(element['vertexB'])
     else:
-        ruta = 'No hay ruta'
+        ruta = ["No", "hay", "ruta"]
     timet=djk.distTo(dijsktra,areaFinal)
-    return (ruta,time)
+    return (ruta,timet)
+
+
+
 
 
 # ==============================
@@ -234,9 +285,15 @@ def crearsecuencia(strupa,LI,LF):
             i=i+15
         elif 24 not in i and 45 in i:
             i=i+100
+            i=i-45
         elif 24 in i and 45 in i:
             i=0
     return lista
+
+def totaltaxis(stru):
+    structure=stru["ids"]
+    return m.size(structure)
+
 
 # ==============================
 # Funciones de Comparacion
@@ -256,6 +313,24 @@ def compareAreas(stop, keyvaluestop):
     if (stop == stopcode):
         return 0
     elif (stop > stopcode):
+        return 1
+    else:
+        return -1
+
+def Comparecompanie(company, companyentry):
+    if (company == companyentry):
+        return 0
+    elif (company > companyentry):
+        return 1
+    else:
+        return 0
+
+def compareIds(date1, date2):
+    # print(date1, date2)
+    date2=str(date2['key'])
+    if (date1 == date2):
+        return 0
+    elif (date1 > date2):
         return 1
     else:
         return -1

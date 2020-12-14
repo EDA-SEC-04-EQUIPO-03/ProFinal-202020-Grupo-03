@@ -72,26 +72,35 @@ def cargar_info():
     print("->  Si desea cargar el archivo mediano marque 2 ")
     print("->  Si desea cargar el archivo grande marque 3 ")
     rta=input("Digite su opción: ")
-    if rta ==1:
+    if int(rta) ==1:
         controller.loadInfo(cont,filesmall)
-    elif rta ==2:
+    elif int(rta) ==2:
         controller.loadInfo(cont,filamedium)
-    elif rta ==3:
+    elif int(rta) ==3:
         controller.loadInfo(cont,filelarge)
     else:
         print("Opción erronea, no se ha cargado la información")
 
 def Req1():
-    print("hola 1")
+    M=input("Ingrese el # de compañias top que quiere conocer con más taxis: ")
+    N=input("Ingrese el # de compañias top que quiere conocer con más servicios: ")
+    controller.getcompataxi(cont,M)
+    controller.getcompaservice(cont,N)
 
 def Req2():
     print("hola 2")
 
 def Req3():
-    print("hola 3")
+    areasalida=input("Ingrese Community Area de donde va a salir: ")
+    areafinal=input("Ingrese Community Area de donde va a llegar: ")
+    timei=input("Ingrese la hora mínima a la que puede tomar el viaje: ")
+    timef=input("Ingrese la hora máxima a la que puede tomar el viaje: ")
+    ruta=controller.mejorhorario(cont,areasalida,areafinal,timei,timef)
+    for cadaruta in ruta:
+        print(str(cadaruta))
 
 while True:
-    printMenu()
+    printmenu()
     inputs = input('Seleccione una opción para continuar\n>')
 
     if int(inputs[0]) == 1:

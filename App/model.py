@@ -31,6 +31,8 @@ from DISClib.DataStructures import listiterator as it
 from DISClib.Algorithms.Graphs import scc
 from DISClib.Algorithms.Graphs import dijsktra as djk
 from DISClib.Utils import error as error
+from DISClib.DataStructures import mapentry as me
+from datetime import datetime 
 assert config
 
 """
@@ -43,38 +45,34 @@ de creacion y consulta sobre las estructuras de datos.
 # -----------------------------------------------------
 
 def Estructura():
-    try:
-        analyzer = {
-                    'company': None,
-                    'areacomu': None
-                    }
+    analyzer = {
+                'company': None,
+                'areacomu': None
+                }
 
-        analyzer['company'] = m.newMap(numelements=14000,
-                                     maptype='CHAINING',
-                                     comparefunction=comparecompanie)
-        analyzer['uniones'] = gr.newGraph(datastructure='ADJ_LIST',
-                                        directed=True,
-                                        size=1000,
-                                        comparefunction=comapreAreas)
+    analyzer['company'] = m.newMap(numelements=14000,
+                                 maptype='CHAINING',
+                                 comparefunction=comparecompanie)
+    analyzer['uniones'] = gr.newGraph(datastructure='ADJ_LIST',
+                                    directed=True,
+                                    size=1000,
+                                    comparefunction=compareAreas)
         
-        
-        return analyzer
- except Exception as exp:
-        error.reraise(exp, 'model:Analizador')
+    return analyzer
 
 
 # Funciones para agregar informacion al grafo
 
 def AddRutaByCompany(estrupa, name, fileline):
-    structure=strupa["company"]
-    chequearcompa=m.contains(structure, name)
-    if chequearcompa:
-        entrada=m.get(structure, name)
-        stropa=me.getValue(entrada)
+    structure=estrupa["company"]
+    hayviaje= m.contains(structure, name)
+    if hayviaje:
+        entrada=m.get(structure, name) 
+        struc=me.getValue(entrada)  
     else:
-        stropa=newRutaCompany(name)
-        m.put(structure, name, stropa)
-    lt.addLast(stropa["listacompas"], fileline)
+        struc=newRutaCompany(name) 
+        m.put(structure, name, struc) 
+    lt.addLast(struc["listacompas"], fileline)
 
 def newRutaCompany(compa):
     dik = {"name":"","listacompas":None,"size":None}
@@ -108,8 +106,14 @@ def agregartopsservice(dicc):
 
 def AddViaje(analyzer,trip):
     #Cada estación se agrega como un vértice al grafo, si es que aún no existe.
-    origin = trip['pickup_community_area']
-    destination = trip['dropoff_community_area']
+    horai=trip["trip_start_timestamp"].hour() 
+    horaf=trip["trip_end_timestamp"].hour() 
+    minui=trip["trip_start_timestamp"].minute() 
+    minuf=trip["trip_end_timestamp"].minute() 
+    fechai=horai+minui #h:mm
+    fechaf=horaf+minuf #h:mm
+    origin = trip['pickup_community_area']+"-"+fechai
+    destination = trip['dropoff_community_area']+"-"+fechaf
     duration = float(trip['trip_seconds'])
     addStation(analyzer, origin)
     addStation(analyzer, destination)
@@ -159,7 +163,8 @@ def getCompaTopTaxi(strupa,numero):
     strukk=strupa["compañy"]
     for cada_compi in strukk:
         dicc=strukk[cada_compi]
-        
+        tuplin=agregartopstaxi(dicc)
+        analizartops(tuplin, numero)
 
 def analizartops(tuplilla,numero):
     i=0
@@ -174,16 +179,26 @@ def analizartops(tuplilla,numero):
         print(nombrecompa)
         print(str(valor))
         i+=1
-    
-def hallarmejorhorario(strupa,areaInicio,areaFinal,horaInicio,Horafinal):
-    
-    tiempototal=djk.distTo(algoritmo djrisk, areaFinal)
-    rut=ruta(strupa,areaInicio,areaFinal)
-    return (hora, rut, tiempototal)
+
+
+def hallarposilesvertex(strupa,Hi,Hf):
+    listav=[]
+    sacarruta=[]
+    estructura=gr.vertices(strupa["uniones"])
+    iterator=it.newIterator(estructura)
+    while it.hasNext(iterator):
+        vertex=it.next(iterator) #cada vertex
+        listav.append(vertex)
+    listarevisar=crearsecuencia(strupa,int(Hi),int(Hf))
+    for posiblehora in listarevisar:
+        for posiblevertex in listav:
+            if posiblehora in posiblevertex:
+                sacarruta.append(posiblevertex)
+    return sacarruta
 
 def ruta(strupa,areaInicio, areaFinal):
     ruta = []
-    dijsktra = djk.Dijkstra(citibike['graph'],str(areaInicio))
+    dijsktra = djk.Dijkstra(strupa['graph'],areaInicio)
     if djk.hasPathTo(dijsktra, areaFinal):
         ruta.append(areaInicio)
         ruta_lt = djk.pathTo(dijsktra, areaFinal)
@@ -193,7 +208,8 @@ def ruta(strupa,areaInicio, areaFinal):
             ruta.append(element['vertexB'])
     else:
         ruta = 'No hay ruta'
-    return ruta
+    timet=djk.distTo(dijsktra,areaFinal)
+    return (ruta,time)
 
 
 # ==============================
@@ -208,6 +224,19 @@ def hallarposicionarray(arreglar, name):
             pos=i
         i+=1
     return pos
+
+def crearsecuencia(strupa,LI,LF):
+    i=LI
+    lista=[]
+    while i <= gr.numEdges(strupa["uniones"]) and i<LF:
+        lista.append(str(i))
+        if 45 not in i:
+            i=i+15
+        elif 24 not in i and 45 in i:
+            i=i+100
+        elif 24 in i and 45 in i:
+            i=0
+    return lista
 
 # ==============================
 # Funciones de Comparacion

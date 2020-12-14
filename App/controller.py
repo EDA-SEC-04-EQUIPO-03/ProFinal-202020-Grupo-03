@@ -40,7 +40,7 @@ recae sobre el controlador.
 #  Inicializacion del catalogo
 # ___________________________________________________
 
-def iniciar_catalogo(structure):
+def iniciar_catalogo():
     catalogo=model.Estructura()
     return catalogo
 # ___________________________________________________
@@ -52,11 +52,14 @@ def loadInfo(structure, infofile):
     """
     Carga los datos de los archivos CSV en el modelo
     """
-    infofile = cf.data_dir + accidentsfile
+    infofile = cf.data_dir + infofile
     input_file = csv.DictReader(open(infofile, encoding="utf-8"),
                                 delimiter=",")
     for line in input_file:
         companie=line["company"]
+        if companie is None:
+            line["company"]="LonelyWorker S.A"
+            companie="LonelyWorker S.A"
         model.AddRutaByCompany(structure, companie, line)
         model.AddViaje(structure,line)
     return structure
@@ -65,4 +68,20 @@ def loadInfo(structure, infofile):
 #  Funciones para consultas
 # ___________________________________________________
 
-def get():
+def getcompataxi(strupa, num):
+    model.getCompaTopTaxi(strupa, num)
+
+def getcompaservice(strupa, num):
+    model.getCompaTopService(strupa, num)
+
+
+def mejorhorario(strupa,areaInicio,areaFinal,horaInicio,Horafinal):
+    listavertex=model.hallarposilesvertex(strupa,tupick,horaInicio,Horafinal)
+    timepasado=999999999999999
+    ruta=["e","r","r","o","r"]
+    for cadavertex in listavertex:
+        grut=model.ruta(strupa,cadavertex,areaFinal)
+        if grut[1]<timepasado:
+            timepasado=grut[1]
+            ruta=grut[0]
+    return ruta
